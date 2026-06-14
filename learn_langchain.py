@@ -61,7 +61,7 @@ params = {
     "top_k": 1
 }
 
-prompt = "The wind is "
+prompt = "Once upon a time in a distant galaxy"
 
 # Getting a reponse from the model with the provided prompt and new parameters
 response = llm_model(prompt, params)
