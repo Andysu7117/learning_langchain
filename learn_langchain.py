@@ -52,3 +52,18 @@ def llm_model(prompt_txt, params=None):
     
     response = granite_llm.invoke(prompt_txt)
     return response
+
+params = {
+    "max_new_tokens": 128,
+    "min_new_tokens": 10,
+    "temperature": 0.5,
+    "top_p": 0.2,
+    "top_k": 1
+}
+
+prompt = "The wind is "
+
+# Getting a reponse from the model with the provided prompt and new parameters
+response = llm_model(prompt, params)
+print(f"prompt: {prompt}\n")
+print(f"response : {response}\n")
