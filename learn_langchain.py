@@ -15,3 +15,40 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough, RunnableSequence
 from langchain_core.messages import HumanMessage, SystemMessage
 from langchain.chains import LLMChain  # Still using this for backward compatibility
+
+def llm_model(prompt_txt, params=None):
+    
+    model_id = "ibm/granite-4-h-small"
+
+    default_params = {
+        "max_new_tokens": 256,
+        "min_new_tokens": 0,
+        "temperature": 0.5,
+        "top_p": 0.2,
+        "top_k": 1
+    }
+
+    if params:
+        default_params.update(params)
+
+    # Set up credentials for WatsonxLLM
+    url = "https://us-south.ml.cloud.ibm.com"
+    api_key = "your api key here"
+    project_id = "skills-network"
+
+    credentials = {
+        "url": url,
+        # "api_key": api_key
+        # uncomment the field above and replace the api_key with your actual Watsonx API key
+    }
+    
+    # Create LLM directly
+    granite_llm = WatsonxLLM(
+        model_id=model_id,
+        credentials=credentials,
+        project_id=project_id,
+        params=default_params
+    )
+    
+    response = granite_llm.invoke(prompt_txt)
+    return response
