@@ -40,3 +40,7 @@ template = """Tell me a {adjective} joke about {content}.
 prompt = PromptTemplate.from_template(template)
 prompt 
 prompt.format(adjective="funny", content="chickens")
+
+# Define a function to ensure proper formatting
+def format_prompt(variables):
+    return prompt.format(**variables)
