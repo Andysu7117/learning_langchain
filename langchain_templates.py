@@ -39,3 +39,4 @@ template = """Tell me a {adjective} joke about {content}.
 """
 prompt = PromptTemplate.from_template(template)
 prompt 
+prompt.format(adjective="funny", content="chickens")
