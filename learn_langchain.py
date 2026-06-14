@@ -63,7 +63,17 @@ params = {
 
 prompt = "Once upon a time in a distant galaxy"
 
+zero_shot_prompt = """Classify the following statement as true or false: 
+            'The Eiffel Tower is located in Berlin.'
+
+            Answer:
+"""
+
 # Getting a reponse from the model with the provided prompt and new parameters
 response = llm_model(prompt, params)
 print(f"prompt: {prompt}\n")
+print(f"response : {response}\n")
+
+response = llm_model(zero_shot_prompt, params)
+print(f"prompt: {zero_shot_prompt}\n")
 print(f"response : {response}\n")
