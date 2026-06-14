@@ -102,3 +102,18 @@ few_shot_prompt = """Here are few examples of classifying emotions in statements
 response = llm_model(few_shot_prompt, params)
 print(f"prompt: {few_shot_prompt}\n")
 print(f"response : {response}\n")
+
+params = {
+    "max_new_tokens": 512,
+    "temperature": 0.5,
+}
+
+chain_of_thought_prompt = """Consider the problem: 'A store had 22 apples. They sold 15 apples today and got a new delivery of 8 apples. 
+            How many apples are there now?’
+
+            Break down each step of your calculation
+
+"""
+response = llm_model(chain_of_thought_prompt, params)
+print(f"prompt: {chain_of_thought_prompt}\n")
+print(f"response : {response}\n")
