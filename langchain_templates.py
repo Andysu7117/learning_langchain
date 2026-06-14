@@ -13,10 +13,9 @@ from ibm_watsonx_ai.foundation_models.utils.enums import ModelTypes
 from langchain_ibm import WatsonxLLM
 from langchain_core.prompts import PromptTemplate, ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
-from langchain_core.runnables import RunnablePassthrough, RunnableSequence
+from langchain_core.runnables import RunnablePassthrough, RunnableSequence, RunnableLambda
 from langchain_core.messages import HumanMessage, SystemMessage
 from langchain.chains import LLMChain  # Still using this for backward compatibility
-from langchain_core.runnables import RunnableLambda
 
 model_id = "ibm/granite-4-h-small"
 
@@ -47,6 +46,7 @@ def format_prompt(variables):
     return prompt.format(**variables)
 
 # Create the chain with explicit formatting
+# the chain takes in an inputruns it through the format_prompt then puts it into the llm and outputs response
 joke_chain = (
     RunnableLambda(format_prompt)
     | llm 
@@ -56,3 +56,108 @@ joke_chain = (
 # Run the chain
 response = joke_chain.invoke({"adjective": "funny", "content": "chickens"})
 print(response)
+
+response = joke_chain.invoke({"adjective": "sad", "content": "fish"})
+print(response)
+
+content = """
+    The rapid advancement of technology in the 21st century has transformed various industries, including healthcare, education, and transportation. 
+    Innovations such as artificial intelligence, machine learning, and the Internet of Things have revolutionized how we approach everyday tasks and complex problems. 
+    For instance, AI-powered diagnostic tools are improving the accuracy and speed of medical diagnoses, while smart transportation systems are making cities more efficient and reducing traffic congestion. 
+    Moreover, online learning platforms are making education more accessible to people around the world, breaking down geographical and financial barriers. 
+    These technological developments are not only enhancing productivity but also contributing to a more interconnected and informed society.
+"""
+
+template = """Summarize the {content} in one sentence.
+"""
+prompt = PromptTemplate.from_template(template)
+
+# Create the LCEL chain
+summarize_chain = (
+    RunnableLambda(format_prompt)
+    | llm 
+    | StrOutputParser()
+)
+
+# Run the chain
+summary = summarize_chain.invoke({"content": content})
+print(summary)
+
+content = """
+    The solar system consists of the Sun, eight planets, their moons, dwarf planets, and smaller objects like asteroids and comets. 
+    The inner planets—Mercury, Venus, Earth, and Mars—are rocky and solid. 
+    The outer planets—Jupiter, Saturn, Uranus, and Neptune—are much larger and gaseous.
+"""
+
+question = "Which planets in the solar system are rocky and solid?"
+
+template = """
+    Answer the {question} based on the {content}.
+    Respond "Unsure about answer" if not sure about the answer.
+    
+    Answer:
+    
+"""
+prompt = PromptTemplate.from_template(template)
+
+# Create the LCEL chain
+qa_chain = (
+    RunnableLambda(format_prompt)
+    | llm 
+    | StrOutputParser()
+)
+
+# Run the chain
+answer = qa_chain.invoke({"question": question, "content": content})
+print(answer)
+
+text = """
+    The concert last night was an exhilarating experience with outstanding performances by all artists.
+"""
+
+categories = "Entertainment, Food and Dining, Technology, Literature, Music."
+
+template = """
+    Classify the {text} into one of the {categories}.
+    
+    Category:
+    
+"""
+prompt = PromptTemplate.from_template(template)
+
+# Create the LCEL chain
+classification_chain = (
+    RunnableLambda(format_prompt)
+    | llm 
+    | StrOutputParser()
+)
+
+# Run the chain
+category = classification_chain.invoke({"text": text, "categories": categories})
+print(category)
+
+description = """
+    Retrieve the names and email addresses of all customers from the 'customers' table who have made a purchase in the last 30 days. 
+    The table 'purchases' contains a column 'purchase_date'
+"""
+
+template = """
+    Generate an SQL query based on the {description}
+    
+    SQL Query:
+    
+"""
+prompt = PromptTemplate.from_template(template)
+
+# Create the LCEL chain
+sql_generation_chain = (
+    RunnableLambda(format_prompt) 
+    | llm 
+    | StrOutputParser()
+)
+
+# Run the chain
+sql_query = sql_generation_chain.invoke({"description": description})
+print(sql_query)
+
+
