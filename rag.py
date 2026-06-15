@@ -31,7 +31,10 @@ texts = [text.page_content for text in chunks]
 embedding_result = embedding_model.embed_documents(texts)
 
 # 4. Create a vector store
-vector_store = ##TODO
+vector_store = Chroma.from_documents(chunks, embedding_model, collection_name="langchain_docs")
+query = "Langchain"
+docs = vector_store.similarity_search(query)
+print(docs[0].page_content)
 
 # 5. Create a retriever
 retriever = ##TODO
