@@ -1,28 +1,19 @@
-from langchain.memory import ConversationBufferMemory, ChatMessageHistory
 from langchain.chains import ConversationChain
-from langchain_core.messages import HumanMessage, AIMessage
-from ibm_watsonx_ai.foundation_models import ModelInference
-from ibm_watsonx_ai.metanames import GenTextParamsMetaNames as GenParams
-from ibm_watson_machine_learning.foundation_models.extensions.langchain import WatsonxLLM
+from langchain.memory import ConversationBufferMemory
+from langchain_community.chat_message_histories import ChatMessageHistory
+from langchain_community.llms import HuggingFacePipeline
+from langchain_core.messages import HumanMessage
 
-# 1. Set up the language model
-model_id = 'meta-llama/llama-4-maverick-17b-128e-instruct-fp8'
-parameters = {
-    GenParams.MAX_NEW_TOKENS: 256,
-    GenParams.TEMPERATURE: 0.2,
-}
-credentials = {"url": "https://us-south.ml.cloud.ibm.com"}
-project_id = "skills-network"
-
-# Initialize the model
-model = ModelInference(
-    model_id=model_id,
-    params=parameters,
-    credentials=credentials,
-    project_id=project_id
-)
-llm = WatsonxLLM(
-    model=model,
+# 1. Set up a free local language model (no API key required).
+# First run downloads the model (~700MB).
+llm = HuggingFacePipeline.from_model_id(
+    model_id="HuggingFaceTB/SmolLM2-360M-Instruct",
+    task="text-generation",
+    pipeline_kwargs={
+        "max_new_tokens": 64,
+        "temperature": 0.2,
+        "return_full_text": False,
+    },
 )
 
 # 2. Create a simple conversation with chat history
@@ -77,7 +68,6 @@ chat_simulation(conversation, test_inputs)
 # 7. Examine the conversation memory
 print("\nFinal Memory Contents:")
 print(conversation.memory.buffer)
-##TODO: Print the contents of the conversation memory
 
 # 8. Create a new conversation with a different type of memory (optional)
 # Try implementing ConversationSummaryMemory or another type of memory
