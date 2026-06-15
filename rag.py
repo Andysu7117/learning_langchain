@@ -1,10 +1,8 @@
 from langchain_core.documents import Document
 from langchain_community.document_loaders import WebBaseLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.vectorstores import Chroma
-from langchain_ibm import WatsonxEmbeddings
-from ibm_watsonx_ai.metanames import EmbedTextParamsMetaNames
-from langchain.chains import RetrievalQA
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_community.vectorstores import Chroma
 
 # 1. Load a document about AI
 loader = WebBaseLoader("https://python.langchain.com/v0.2/docs/introduction/")
@@ -14,21 +12,10 @@ documents = loader.load()
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50, separators=["\n\n", "\n", ". ", " ", ""])
 chunks = text_splitter.split_documents(documents)
 
-# 3. Set up the embedding model. (Use an embedding model to create vector representations.)
-embed_params = {
-    EmbedTextParamsMetaNames.TRUNCATE_INPUT_TOKENS: 3,
-    EmbedTextParamsMetaNames.RETURN_OPTIONS: {"input_text": True},
-}
-
-embedding_model = WatsonxEmbeddings(
-        model="ibm/slate-125m-english-rtrvr-v2",
-        url="https://us-south.ml.cloud.ibm.com",
-        project_id="skills-network",
-        params=embed_params,
+# 3. Set up the embedding model (free local model, no API key required).
+embedding_model = HuggingFaceEmbeddings(
+    model_name="sentence-transformers/all-MiniLM-L6-v2"
 )
-
-texts = [text.page_content for text in chunks]
-embedding_result = embedding_model.embed_documents(texts)
 
 # 4. Create a vector store
 vector_store = Chroma.from_documents(chunks, embedding_model)
@@ -40,7 +27,7 @@ retriever = vector_store.as_retriever(search_kwargs={"k": 3})
 def search_documents(query, top_k=3):
     """Search for documents relevant to a query"""
     # Use the retriever to get relevant documents
-    docs = retriever.get_relevant_documents(query)
+    docs = retriever.invoke(query)
     
     # Limit to top_k if specified
     return docs[:top_k]
