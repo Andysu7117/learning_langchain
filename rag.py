@@ -8,10 +8,10 @@ from langchain.chains import RetrievalQA
 
 # 1. Load a document about AI
 loader = WebBaseLoader("https://python.langchain.com/v0.2/docs/introduction/")
-documents = ##TODO
+documents = loader.load()
 
 # 2. Split the document into chunks
-text_splitter = ##TODO
+text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50, separators=["\n\n", "\n", ". ", " ", ""])
 chunks = ##TODO
 
 # 3. Set up the embedding model. (Use an embedding model to create vector representations.)
