@@ -30,10 +30,10 @@ history = ChatMessageHistory()
 
 # Add some initial messages (optional)
 history.add_user_message("Hello, my name is Alice.")
-##TODO: Add an AI response
+history.add_ai_message("Hello, Alice. How can I help you today?")
 
 # 3. Print the current conversation history
-##TODO: Print the current messages in history
+print(history.messages)
 
 # 4. Set up a conversation chain with memory
 memory = ##TODO
