@@ -76,6 +76,7 @@ chat_simulation(conversation, test_inputs)
 
 # 7. Examine the conversation memory
 print("\nFinal Memory Contents:")
+print(conversation.memory.buffer)
 ##TODO: Print the contents of the conversation memory
 
 # 8. Create a new conversation with a different type of memory (optional)
