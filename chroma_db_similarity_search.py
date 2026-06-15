@@ -39,3 +39,9 @@ texts = [
 # Create a list of unique IDs for each text item in the 'texts' array
  # Each ID follows the format 'food_<index>', where <index> starts from 1
 ids = [f"food_{index + 1}" for index, _ in enumerate(texts)]
+
+collection.add(
+    documents=texts,
+    metadatas=[{"source": "grocery_store", "category": "food"} for _ in texts],
+    ids=ids
+)
