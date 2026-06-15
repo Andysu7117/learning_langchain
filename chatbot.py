@@ -33,11 +33,18 @@ history.add_user_message("Hello, my name is Alice.")
 history.add_ai_message("Hello, Alice. How can I help you today?")
 
 # 3. Print the current conversation history
-print(history.messages)
+print("Initial Chat History:")
+for message in history.messages:
+    sender = "Human" if isinstance(message, HumanMessage) else "AI"
+    print(f"{sender}: {message.content}")
 
 # 4. Set up a conversation chain with memory
-memory = ##TODO
-conversation = ##TODO
+memory = ConversationBufferMemory(chat_memory=history)
+conversation = ConversationChain(
+    llm=llm,
+    memory=memory,
+    verbose=True
+)
 
 # 5. Function to simulate a conversation
 def chat_simulation(conversation, inputs):
