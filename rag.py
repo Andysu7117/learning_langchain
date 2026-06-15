@@ -31,13 +31,10 @@ texts = [text.page_content for text in chunks]
 embedding_result = embedding_model.embed_documents(texts)
 
 # 4. Create a vector store
-vector_store = Chroma.from_documents(chunks, embedding_model, collection_name="langchain_docs")
-query = "Langchain"
-docs = vector_store.similarity_search(query)
-print(docs[0].page_content)
+vector_store = Chroma.from_documents(chunks, embedding_model)
 
 # 5. Create a retriever
-retriever = ##TODO
+retriever = vector_store.as_retriever(search_kwargs={"k": 3})
 
 # 6. Define a function to search for relevant information
 def search_documents(query, top_k=3):
@@ -57,6 +54,9 @@ test_queries = [
 
 for query in test_queries:
     print(f"\nQuery: {query}")
-    results = ##TODO
+    results = search_documents(query)
     # Print the results
-    ##TODO: Display the results clearly
+    print(f"Found {len(results)} relevant documents:")
+    for i, doc in enumerate(results):
+        print(f"\nResult {i+1}: {doc.page_content[:150]}...")
+        print(f"Source: {doc.metadata.get('source', 'Unknown')}")
