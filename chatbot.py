@@ -15,8 +15,15 @@ credentials = {"url": "https://us-south.ml.cloud.ibm.com"}
 project_id = "skills-network"
 
 # Initialize the model
-model = ##TODO
-llm = ##TODO
+model = ModelInference(
+    model_id=model_id,
+    params=parameters,
+    credentials=credentials,
+    project_id=project_id
+)
+llm = WatsonxLLM(
+    model=model,
+)
 
 # 2. Create a simple conversation with chat history
 history = ##TODO
