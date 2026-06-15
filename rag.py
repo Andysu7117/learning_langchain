@@ -27,6 +27,9 @@ embedding_model = WatsonxEmbeddings(
         params=embed_params,
 )
 
+texts = [text.page_content for text in chunks]
+embedding_result = embedding_model.embed_documents(texts)
+
 # 4. Create a vector store
 vector_store = ##TODO
 
