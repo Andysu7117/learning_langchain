@@ -159,5 +159,3 @@ sql_generation_chain = (
 # Run the chain
 sql_query = sql_generation_chain.invoke({"description": description})
 print(sql_query)
-
-

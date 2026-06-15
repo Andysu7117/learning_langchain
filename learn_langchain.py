@@ -117,3 +117,16 @@ chain_of_thought_prompt = """Consider the problem: 'A store had 22 apples. They 
 response = llm_model(chain_of_thought_prompt, params)
 print(f"prompt: {chain_of_thought_prompt}\n")
 print(f"response : {response}\n")
+
+params = {
+    "max_new_tokens": 512,
+}
+
+self_consistency_prompt = """When I was 6, my sister was half of my age. Now I am 70, what age is my sister?
+
+            Provide three independent calculations and explanations, then determine the most consistent result.
+
+"""
+response = llm_model(self_consistency_prompt, params)
+print(f"prompt: {self_consistency_prompt}\n")
+print(f"response : {response}\n")
