@@ -26,7 +26,7 @@ llm = WatsonxLLM(
 )
 
 # 2. Create a simple conversation with chat history
-history = ##TODO
+history = ChatMessageHistory()
 
 # Add some initial messages (optional)
 history.add_user_message("Hello, my name is Alice.")
