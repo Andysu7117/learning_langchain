@@ -12,7 +12,7 @@ documents = loader.load()
 
 # 2. Split the document into chunks
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50, separators=["\n\n", "\n", ". ", " ", ""])
-chunks = ##TODO
+chunks = text_splitter.split_documents(documents)
 
 # 3. Set up the embedding model. (Use an embedding model to create vector representations.)
 embed_params = {
@@ -20,7 +20,11 @@ embed_params = {
     EmbedTextParamsMetaNames.RETURN_OPTIONS: {"input_text": True},
 }
 
-embedding_model = ##TODO: use ibm/slate-125m-english-rtrvr-v2 model
+embedding_model = WatsonxEmbeddings(
+        model="ibm/slate-125m-english-rtrvr-v2",
+        url="https://us-south.ml.cloud.ibm.com",
+        project_id="skills-network",
+        params=embed_params,
 )
 
 # 4. Create a vector store
