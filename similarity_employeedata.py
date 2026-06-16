@@ -262,5 +262,37 @@ def perform_advanced_search(collection, all_items):
             metadata = results['metadatas'][0][i]
             print(f"  {i+1}. {metadata['name']} ({doc_id}) - Distance: {distance:.4f}")
             print(f"     Role: {metadata['role']}, Experience: {metadata['experience']} years")
+
+        print("\n=== Metadata Filtering Examples ===")
+
+        # Example 1: Filter by department
+        print("\n3. Finding all Engineering employees:")
+        results = collection.get(
+            where={"department": "Engineering"}
+        )
+        print(f"Found {len(results['ids'])} Engineering employees:")
+        for i, doc_id in enumerate(results['ids']):
+            metadata = results['metadatas'][i]
+            print(f"  - {metadata['name']}: {metadata['role']} ({metadata['experience']} years)")
+
+        # Example 2: Filter by experience range
+        print("\n4. Finding employees with 10+ years experience:")
+        results = collection.get(
+            where={"experience": {"$gte": 10}}
+        )
+        print(f"Found {len(results['ids'])} senior employees:")
+        for i, doc_id in enumerate(results['ids']):
+            metadata = results['metadatas'][i]
+            print(f"  - {metadata['name']}: {metadata['role']} ({metadata['experience']} years)")
+
+        # Example 3: Filter by location
+        print("\n5. Finding employees in California:")
+        results = collection.get(
+            where={"location": {"$in": ["San Francisco", "Los Angeles"]}}
+        )
+        print(f"Found {len(results['ids'])} employees in California:")
+        for i, doc_id in enumerate(results['ids']):
+            metadata = results['metadatas'][i]
+            print(f"  - {metadata['name']}: {metadata['location']}")
     except Exception as error:
         print(f"Error in advanced search: {error}")
