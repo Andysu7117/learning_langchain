@@ -27,6 +27,7 @@ def main():
     except Exception as error:
         print(f"❌ Error initializing system: {error}")
 
+
 def interactive_food_chatbot(collection):
     """Interactive CLI chatbot for food recommendations"""
     print("\n" + "="*50)
@@ -68,3 +69,78 @@ def interactive_food_chatbot(collection):
             break
         except Exception as e:
             print(f"❌ Error processing request: {e}")
+
+def show_help_menu():
+    """Display help information for users"""
+    print("\n📖 HELP MENU")
+    print("-" * 30)
+    print("Search Examples:")
+    print("  • 'chocolate dessert' - Find chocolate desserts")
+    print("  • 'Italian food' - Find Italian cuisine")
+    print("  • 'sweet treats' - Find sweet desserts")
+    print("  • 'baked goods' - Find baked items")
+    print("  • 'low calorie' - Find lower-calorie options")
+    print("\nCommands:")
+    print("  • 'help' - Show this help menu")
+    print("  • 'quit' - Exit the system")
+
+def handle_food_search(collection, query):
+    """Handle food similarity search with enhanced display"""
+    print(f"\n🔍 Searching for '{query}'...")
+    print("   Please wait...")
+    
+    # Perform similarity search
+    results = perform_similarity_search(collection, query, 5)
+    
+    if not results:
+        print("❌ No matching foods found.")
+        print("💡 Try different keywords like:")
+        print("   • Cuisine types: 'Italian', 'American'")
+        print("   • Ingredients: 'chocolate', 'flour', 'cheese'")
+        print("   • Descriptors: 'sweet', 'baked', 'dessert'")
+        return
+    
+    # Display results with rich formatting
+    print(f"\n✅ Found {len(results)} recommendations:")
+    print("=" * 60)
+    
+    for i, result in enumerate(results, 1):
+        # Calculate percentage score
+        percentage_score = result['similarity_score'] * 100
+        
+        print(f"\n{i}. 🍽️  {result['food_name']}")
+        print(f"   📊 Match Score: {percentage_score:.1f}%")
+        print(f"   🏷️  Cuisine: {result['cuisine_type']}")
+        print(f"   🔥 Calories: {result['food_calories_per_serving']} per serving")
+        print(f"   📝 Description: {result['food_description']}")
+        
+        # Add visual separator
+        if i < len(results):
+            print("   " + "-" * 50)
+    
+    print("=" * 60)
+    
+    # Provide suggestions for further exploration
+    suggest_related_searches(results)
+
+def suggest_related_searches(results):
+    """Suggest related searches based on current results"""
+    if not results:
+        return
+    
+    # Extract cuisine types from results
+    cuisines = list(set([r['cuisine_type'] for r in results]))
+    
+    print("\n💡 Related searches you might like:")
+    for cuisine in cuisines[:3]:  # Limit to 3 suggestions
+        print(f"   • Try '{cuisine} dishes' for more {cuisine} options")
+    
+    # Suggest calorie-based searches
+    avg_calories = sum([r['food_calories_per_serving'] for r in results]) / len(results)
+    if avg_calories > 350:
+        print("   • Try 'low calorie' for lighter options")
+    else:
+        print("   • Try 'hearty meal' for more substantial dishes")
+
+if __name__ == "__main__":
+    main()
