@@ -1,4 +1,107 @@
+from pathlib import Path
+
 from food_recommendation_functions import *
+
+DATA_PATH = Path(__file__).parent / "FoodDataSet.json"
+COLLECTION_NAME = "advanced_food_search"
+
+DEMONSTRATIONS = [
+    {
+        "title": "Italian Cuisine Search",
+        "query": "creamy pasta",
+        "cuisine_filter": "Italian",
+        "max_calories": None,
+    },
+    {
+        "title": "Low-Calorie Healthy Options",
+        "query": "healthy meal",
+        "cuisine_filter": None,
+        "max_calories": 300,
+    },
+    {
+        "title": "Asian Light Dishes",
+        "query": "light fresh meal",
+        "cuisine_filter": "Japanese",
+        "max_calories": 250,
+    },
+]
+
+
+def init_advanced_food_search(data_path: str | Path | None = None):
+    """Load food data and build the advanced search Chroma collection."""
+    path = str(data_path or DATA_PATH)
+    food_items = load_food_data(path)
+    collection = create_similarity_search_collection(
+        COLLECTION_NAME,
+        {"description": "A collection for advanced search demos"},
+    )
+    populate_similarity_collection(collection, food_items)
+    cuisines = sorted({item.get("cuisine_type", "Unknown") for item in food_items})
+    return collection, food_items, cuisines
+
+
+def run_advanced_search(
+    collection,
+    query: str,
+    cuisine_filter: str | None = None,
+    max_calories: int | None = None,
+    n_results: int = 5,
+):
+    """Run basic or filtered similarity search."""
+    if cuisine_filter or max_calories:
+        return perform_filtered_similarity_search(
+            collection,
+            query,
+            cuisine_filter=cuisine_filter,
+            max_calories=max_calories,
+            n_results=n_results,
+        )
+    return perform_similarity_search(collection, query, n_results)
+
+
+def format_results_markdown(query: str, results: list[dict], title: str | None = None) -> str:
+    """Format search results as markdown for the Streamlit UI."""
+    heading = title or f"**{query}**"
+    if not results:
+        return (
+            f"No matching foods found for {heading}.\n\n"
+            "Try adjusting your search terms or filters. "
+            "Use descriptive terms like `creamy`, `spicy`, or `light`, "
+            "or combine ingredients such as `chicken vegetables`."
+        )
+
+    lines = [f"Found **{len(results)}** results for {heading}:\n"]
+    for index, result in enumerate(results, start=1):
+        score = result["similarity_score"] * 100
+        lines.extend(
+            [
+                f"### {index}. {result['food_name']}",
+                f"**Match:** {score:.1f}% · **Cuisine:** {result['cuisine_type']} · "
+                f"**Calories:** {result['food_calories_per_serving']} per serving",
+                f"{result['food_description']}",
+                "",
+            ]
+        )
+    return "\n".join(lines)
+
+
+def get_advanced_help_markdown() -> str:
+    """Return advanced search help text for the Streamlit UI."""
+    return (
+        "**Advanced Food Search Help**\n\n"
+        "**Search types**\n"
+        "- Basic search — standard similarity search\n"
+        "- Cuisine filter — limit results to a cuisine type\n"
+        "- Calorie filter — find foods under a calorie limit\n"
+        "- Combined filters — use cuisine and calorie filters together\n\n"
+        "**Tips**\n"
+        "- Use descriptive terms: `creamy`, `spicy`, `light`\n"
+        "- Combine ingredients: `chicken vegetables`\n"
+        "- Try cuisine names: `Italian`, `Thai`, `Mexican`\n"
+        "- Use the sidebar to set filters before searching\n"
+        "- Try the demonstration examples in the sidebar"
+    )
+
 
 def main():
     """Main function for advanced search demonstrations"""
@@ -7,16 +110,8 @@ def main():
         print("=" * 50)
         print("Loading food database with advanced filtering capabilities...")
         
-        # Load food data from JSON file
-        food_items = load_food_data('./FoodDataSet.json')
+        collection, food_items, _ = init_advanced_food_search()
         print(f"✅ Loaded {len(food_items)} food items successfully")
-        
-        # Create collection specifically for advanced search operations
-        collection = create_similarity_search_collection(
-            "advanced_food_search",
-            {'description': 'A collection for advanced search demos'}
-        )
-        populate_similarity_collection(collection, food_items)
         
         # Start the interactive advanced search interface
         interactive_advanced_search(collection)
@@ -78,8 +173,8 @@ def perform_basic_search(collection):
         return
     
     print(f"\n🔍 Searching for '{query}'...")
-    results = perform_similarity_search(collection, query, 5)
-    
+    results = run_advanced_search(collection, query, n_results=5)
+
     display_search_results(results, "Basic Search Results")
 
 def perform_cuisine_filtered_search(collection):
@@ -115,10 +210,10 @@ def perform_cuisine_filtered_search(collection):
         return
     
     print(f"\n🔍 Searching for '{query}' in {cuisine_filter} cuisine...")
-    results = perform_filtered_similarity_search(
+    results = run_advanced_search(
         collection, query, cuisine_filter=cuisine_filter, n_results=5
     )
-    
+
     display_search_results(results, f"Cuisine-Filtered Results ({cuisine_filter})")
 
 def perform_calorie_filtered_search(collection):
@@ -140,10 +235,10 @@ def perform_calorie_filtered_search(collection):
     print(f"\n🔍 Searching for '{query}'" + 
           (f" with max {max_calories} calories..." if max_calories else "..."))
     
-    results = perform_filtered_similarity_search(
+    results = run_advanced_search(
         collection, query, max_calories=max_calories, n_results=5
     )
-    
+
     calorie_text = f"under {max_calories} calories" if max_calories else "any calories"
     display_search_results(results, f"Calorie-Filtered Results ({calorie_text})")
 
@@ -174,13 +269,14 @@ def perform_combined_filtered_search(collection):
     
     print(f"\n🔍 Searching for '{query}' with {filter_text}...")
     
-    results = perform_filtered_similarity_search(
-        collection, query, 
-        cuisine_filter=cuisine_filter, 
-        max_calories=max_calories, 
-        n_results=5
+    results = run_advanced_search(
+        collection,
+        query,
+        cuisine_filter=cuisine_filter,
+        max_calories=max_calories,
+        n_results=5,
     )
-    
+
     display_search_results(results, f"Combined Filtered Results ({filter_text})")
 
 def run_search_demonstrations(collection):
@@ -188,28 +284,7 @@ def run_search_demonstrations(collection):
     print("\n📊 SEARCH DEMONSTRATIONS")
     print("=" * 40)
     
-    demonstrations = [
-        {
-            "title": "Italian Cuisine Search",
-            "query": "creamy pasta",
-            "cuisine_filter": "Italian",
-            "max_calories": None
-        },
-        {
-            "title": "Low-Calorie Healthy Options",
-            "query": "healthy meal",
-            "cuisine_filter": None,
-            "max_calories": 300
-        },
-        {
-            "title": "Asian Light Dishes",
-            "query": "light fresh meal",
-            "cuisine_filter": "Japanese",
-            "max_calories": 250
-        }
-    ]
-    
-    for i, demo in enumerate(demonstrations, 1):
+    for i, demo in enumerate(DEMONSTRATIONS, 1):
         print(f"\n{i}. {demo['title']}")
         print(f"   Query: '{demo['query']}'")
         
@@ -222,12 +297,12 @@ def run_search_demonstrations(collection):
         if filters:
             print(f"   Filters: {', '.join(filters)}")
         
-        results = perform_filtered_similarity_search(
+        results = run_advanced_search(
             collection,
-            demo['query'],
-            cuisine_filter=demo['cuisine_filter'],
-            max_calories=demo['max_calories'],
-            n_results=3
+            demo["query"],
+            cuisine_filter=demo["cuisine_filter"],
+            max_calories=demo["max_calories"],
+            n_results=3,
         )
         
         display_search_results(results, demo['title'], show_details=False)
