@@ -218,6 +218,8 @@ def main():
         # Logging the retrieved items to the console for inspection or debugging
         print("Collection contents:")
         print(f"Number of documents: {len(all_items['documents'])}")
+
+        perform_advanced_search(collection, all_items)
     except Exception as error:
         # Catching and handling any errors that occur within the 'try' block
         # Logs the error message to the console for debugging purposes
@@ -319,5 +321,28 @@ def perform_advanced_search(collection, all_items):
             print(f"  {i+1}. {metadata['name']} ({doc_id}) - Distance: {distance:.4f}")
             print(f"     {metadata['role']} in {metadata['location']} ({metadata['experience']} years)")
             print(f"     Document snippet: {document[:80]}...")
+
+        if not results or not results['ids'] or len(results['ids'][0]) == 0:
+            # Log a message if no similar documents are found for the query term
+            print(f'No documents found similar to "{query_text}"')
+            return
+
+        # Log the header for the top 3 similar documents based on the query term
+        print(f'Top 3 similar documents to "{query_text}":')
+        # Loop through the top 3 results and log the document details
+        for i in range(min(3, len(results['ids'][0]))):
+            # Extract the document ID and similarity score from the results
+            doc_id = results['ids'][0][i]
+            score = results['distances'][0][i]
+            # Retrieve the document text corresponding to the current ID from the results
+            text = results['documents'][0][i]
+            # Check if the text is available; if not, log 'Text not available'
+            if not text:
+                print(f' - ID: {doc_id}, Text: "Text not available", Score: {score:.4f}')
+            else:
+                print(f' - ID: {doc_id}, Text: "{text}", Score: {score:.4f}')
     except Exception as error:
         print(f"Error in advanced search: {error}")
+
+if __name__ == "__main__":
+    main()
