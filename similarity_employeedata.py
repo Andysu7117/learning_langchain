@@ -196,6 +196,28 @@ def main():
             document += f"Skills: {employee['skills']}. Located in {employee['location']}. "
             document += f"Employment type: {employee['employment_type']}."
             employee_documents.append(document)
+        collection.add(
+            # Extracting employee IDs to be used as unique identifiers for each record
+            ids=[employee["id"] for employee in employees],
+            # Using the comprehensive text documents we created
+            documents=employee_documents,
+            # Adding comprehensive metadata for filtering and search
+            metadatas=[{
+                "name": employee["name"],
+                "department": employee["department"],
+                "role": employee["role"],
+                "experience": employee["experience"],
+                "location": employee["location"],
+                "employment_type": employee["employment_type"]
+            } for employee in employees]
+        )
+
+        # Retrieving all items from the specified collection
+        # The 'get' method fetches all records stored in the collection
+        all_items = collection.get()
+        # Logging the retrieved items to the console for inspection or debugging
+        print("Collection contents:")
+        print(f"Number of documents: {len(all_items['documents'])}")
     except Exception as error:
         # Catching and handling any errors that occur within the 'try' block
         # Logs the error message to the console for debugging purposes
